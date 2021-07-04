@@ -2,6 +2,7 @@
 
 # [internal] load cc_proto_library.bzl
 load("//tensorflow_text:tftext.bzl", "tf_cc_library")
+load("@org_tensorflow//tensorflow:tensorflow.bzl", "tf_kernel_library")
 
 licenses(["notice"])
 
@@ -211,6 +212,56 @@ tf_cc_library(
         # absl/strings dep
         "@icu//:nfkc",
         "@icu//:nfkc_cf",
+    ],
+)
+
+tf_cc_library(
+    name = "ngrams_kernel_template",
+    hdrs = ["ngrams_kernel_template.h"],
+    deps = [
+        "//third_party/absl/status",
+        # absl/strings dep
+        # tf/platform:tstring tensorflow dep,
+        "//third_party/tensorflow/lite/kernels/shim:op_kernel",
+        "//third_party/tensorflow/lite/kernels/shim:status_macros",
+        "//third_party/tensorflow/lite/kernels/shim:tensor_view",
+    ],
+)
+
+tf_kernel_library(
+    name = "ngrams_kernel",
+    srcs = ["ngrams_kernel.cc"],
+    hdrs = ["ngrams_kernel.h"],
+    deps = [
+        ":ngrams_kernel_template",
+        "//third_party/tensorflow/lite/kernels/shim:tf_op_shim",
+    ],
+)
+
+tf_cc_library(
+    name = "ngrams_tflite",
+    srcs = ["ngrams_tflite.cc"],
+    hdrs = ["ngrams_tflite.h"],
+    deps = [
+        ":ngrams_kernel_template",
+        "//third_party/tensorflow/lite:context",
+        "//third_party/tensorflow/lite:mutable_op_resolver",
+        "//third_party/tensorflow/lite/c:common",
+        "//third_party/tensorflow/lite/kernels/shim:tflite_op_shim",
+    ],
+)
+
+cc_test(
+    name = "ngrams_tflite_test",
+    srcs = ["ngrams_tflite_test.cc"],
+    deps = [
+        ":ngrams_tflite",
+        "//third_party/flatbuffers",
+        "//third_party/tensorflow/lite:string_util",
+        "//third_party/tensorflow/lite/c:common",
+        "//third_party/tensorflow/lite/kernels:test_util",
+        "//third_party/tensorflow/lite/schema:schema_fbs",
+        "@com_google_googletest//:gtest_main",
     ],
 )
 
