@@ -72,15 +72,14 @@ def py_tf_text_library(
             }),
         )
 
-    if srcs:
-        native.py_library(
-            name = name,
-            srcs = srcs,
-            srcs_version = "PY2AND3",
-            visibility = visibility,
-            data = [":" + binary_name],
-            deps = deps,
-        )
+    native.py_library(
+        name = name,
+        srcs = srcs,
+        srcs_version = "PY2AND3",
+        visibility = visibility,
+        data = [":" + binary_name],
+        deps = deps,
+    )
 
 
 def tf_cc_library(
@@ -114,12 +113,7 @@ def tf_cc_library(
         alwayslink = 1
     # These are "random" deps likely needed by each library (http://b/142433427)
     oss_deps = [
-        "@com_google_absl//absl/container:inlined_vector",
-        "@com_google_absl//absl/functional:function_ref",
-        "@com_google_absl//absl/strings",
         "@com_google_absl//absl/strings:cord",
-        "@com_google_absl//absl/types:optional",
-        "@com_google_absl//absl/types:span",
     ]
     deps += select({
         "@org_tensorflow//tensorflow:mobile": [
